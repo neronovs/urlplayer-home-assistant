@@ -1,0 +1,29 @@
+{
+    "config": {
+        "step": {
+            "user": {
+                "title": "UrlPlayer Media Player",
+                "data": {
+                    "host": "Host",
+                    "port": "Port",
+                    "token": "Bearer Token"
+                }
+            },
+            "zeroconf_confirm": {
+                "title": "UrlPlayer Media Player",
+                "description": "Found UrlPlayer at {host}:{port}. Please enter your Bearer token.",
+                "data": {
+                    "token": "Bearer Token"
+                }
+            }
+        },
+        "error": {
+            "cannot_connect": "Unable to connect to the UrlPlayer device.",
+            "invalid_auth": "Authentication failed. Please check your token.",
+            "unknown": "An unknown error occurred."
+        },
+        "abort": {
+            "already_configured": "This UrlPlayer device is already configured."
+        }
+    }
+}

@@ -1,0 +1,16 @@
+{
+    "domain": "urlplayer_media_player",
+    "name": "UrlPlayer",
+    "version": "1.0.0",
+    "documentation": "https://github.com/neronovs/urlplayer-home-assistant",
+    "iot_class": "local_polling",
+    "config_flow": true,
+    "zeroconf": [
+        {
+            "type": "_urlplayer._tcp.local."
+        }
+    ],
+    "codeowners": ["@neronovs"],
+    "issue_tracker": "https://github.com/neronovs/urlplayer-home-assistant/issues",
+    "requirements": []
+}
