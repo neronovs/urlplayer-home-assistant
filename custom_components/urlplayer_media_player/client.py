@@ -2,6 +2,31 @@ import urllib.request
 import urllib.error
 import json
 from typing import Dict, Tuple, Optional
+from urllib.parse import urlparse
+
+
+def normalize_host_port(host: str, port: int) -> Tuple[str, int]:
+    """Normalize host and port from user input."""
+    # Strip leading/trailing whitespace
+    clean_host = host.strip()
+    
+    # If host starts with http:// or https://, parse it to extract hostname and port
+    if clean_host.startswith(("http://", "https://")):
+        parsed = urlparse(clean_host)
+        if parsed.hostname:
+            clean_host = parsed.hostname
+        if parsed.port is not None:
+            port = parsed.port
+    
+    # If host contains ":" (IPv4:port like "192.168.2.175:8765"), split it
+    elif ":" in clean_host:
+        parts = clean_host.split(":", 1)
+        if len(parts) == 2 and parts[1].isdigit():
+            clean_host = parts[0]
+            port = int(parts[1])
+    
+    return (clean_host, port)
+
 
 class UrlPlayerAuthError(Exception):
     """Custom exception for authentication errors."""
@@ -18,9 +43,8 @@ class UrlPlayerClient:
 
     def __init__(self, host: str, port: int, token: str, timeout: float = 5.0):
         """Initialize the UrlPlayer client."""
-        self.host = host
-        self.port = port
-        self.token = token
+        self.host, self.port = normalize_host_port(host, port)
+        self.token = token.strip()
         self.timeout = timeout
 
     @property
@@ -39,7 +63,8 @@ class UrlPlayerClient:
         """Make an HTTP request with proper error handling."""
         try:
             headers = {"Authorization": f"Bearer {self.token}"}
-            if data:
+            if data is not None:
+                headers["Content-Type"] = "application/json"
                 req_data = json.dumps(data).encode('utf-8')
                 request = urllib.request.Request(url, data=req_data, headers=headers, method=method)
             else:

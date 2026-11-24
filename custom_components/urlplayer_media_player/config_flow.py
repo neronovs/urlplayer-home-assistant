@@ -8,7 +8,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import HomeAssistantError
 
 from .const import DOMAIN, CONF_HOST, CONF_PORT, CONF_TOKEN, DEFAULT_PORT
-from .client import UrlPlayerClient, UrlPlayerAuthError, UrlPlayerConnectionError
+from .client import UrlPlayerClient, UrlPlayerAuthError, UrlPlayerConnectionError, normalize_host_port
 
 DATA_SCHEMA = vol.Schema(
     {
@@ -42,8 +42,10 @@ class UrlPlayerConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         errors: Dict[str, str] = {}
         if user_input is not None:
             try:
+                (host, port) = normalize_host_port(user_input[CONF_HOST], user_input[CONF_PORT])
+                token = user_input[CONF_TOKEN].strip()
                 info = await validate_input(
-                    self.hass, user_input[CONF_HOST], user_input[CONF_PORT], user_input[CONF_TOKEN]
+                    self.hass, host, port, token
                 )
             except UrlPlayerAuthError:
                 errors["base"] = "invalid_auth"
@@ -56,9 +58,9 @@ class UrlPlayerConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 return self.async_create_entry(
                     title=info["title"],
                     data={
-                        CONF_HOST: user_input[CONF_HOST],
-                        CONF_PORT: user_input[CONF_PORT],
-                        CONF_TOKEN: user_input[CONF_TOKEN],
+                        CONF_HOST: host,
+                        CONF_PORT: port,
+                        CONF_TOKEN: token,
                     },
                 )
 
@@ -72,8 +74,9 @@ class UrlPlayerConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         self, discovery_info
     ) -> FlowResult:
         """Handle zeroconf discovery."""
-        host = discovery_info["host"]
-        port = discovery_info["port"]
+        # Support both ZeroconfServiceInfo object attributes and dict fallback
+        host = getattr(discovery_info, "host", None) or discovery_info["host"]
+        port = getattr(discovery_info, "port", None) or discovery_info["port"]
 
         # Set unique_id based on host and port
         unique_id = f"{host}:{port}"

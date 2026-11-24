@@ -19,6 +19,7 @@ client_spec.loader.exec_module(client_module)
 UrlPlayerClient = client_module.UrlPlayerClient
 UrlPlayerAuthError = client_module.UrlPlayerAuthError
 UrlPlayerConnectionError = client_module.UrlPlayerConnectionError
+normalize_host_port = client_module.normalize_host_port
 
 class TestUrlPlayerClient(unittest.TestCase):
     
@@ -153,6 +154,20 @@ class TestUrlPlayerClient(unittest.TestCase):
         client = UrlPlayerClient('localhost', 99999, 'test_token')
         with self.assertRaises(UrlPlayerConnectionError):
             client.health()
+            
+    def test_client_with_mock_server(self):
+        """Test that UrlPlayerClient works correctly with mock server."""
+        # Create a client with the same host and port as our test server
+        client = UrlPlayerClient('localhost', self.port, 'test_token')
+        # This should succeed without errors
+        result = client.status()
+        expected = {
+            'status': 'playing',
+            'volume': 0.5,
+            'current_station': 'test_station',
+            'current_track': 'test_track'
+        }
+        self.assertEqual(result, expected)
 
 class TestRequestHandler(BaseHTTPRequestHandler):
     last_request = None
@@ -258,3 +273,48 @@ class TestRequestHandler(BaseHTTPRequestHandler):
 
 if __name__ == '__main__':
     unittest.main()
+    
+class TestNormalizeHostPort(unittest.TestCase):
+    """Test cases for normalize_host_port function."""
+    
+    def test_normalize_host_port_ipv4(self):
+        """Test normal IPv4 address without port."""
+        host, port = normalize_host_port("192.168.2.175", 8765)
+        self.assertEqual(host, "192.168.2.175")
+        self.assertEqual(port, 8765)
+    
+    def test_normalize_host_port_http_url(self):
+        """Test HTTP URL with port."""
+        host, port = normalize_host_port("http://192.168.2.175:8765", 8765)
+        self.assertEqual(host, "192.168.2.175")
+        self.assertEqual(port, 8765)
+    
+    def test_normalize_host_port_http_url_no_port(self):
+        """Test HTTP URL without port."""
+        host, port = normalize_host_port("http://192.168.2.175", 8765)
+        self.assertEqual(host, "192.168.2.175")
+        self.assertEqual(port, 8765)
+    
+    def test_normalize_host_port_http_url_with_slash(self):
+        """Test HTTP URL with trailing slash."""
+        host, port = normalize_host_port("http://192.168.2.175:8765/", 8765)
+        self.assertEqual(host, "192.168.2.175")
+        self.assertEqual(port, 8765)
+    
+    def test_normalize_host_port_ipv4_with_port(self):
+        """Test IPv4 address with port."""
+        host, port = normalize_host_port("192.168.2.175:9000", 8765)
+        self.assertEqual(host, "192.168.2.175")
+        self.assertEqual(port, 9000)
+    
+    def test_normalize_host_port_whitespace(self):
+        """Test host with leading/trailing whitespace."""
+        host, port = normalize_host_port("  192.168.2.175  ", 8765)
+        self.assertEqual(host, "192.168.2.175")
+        self.assertEqual(port, 8765)
+        
+    def test_normalize_host_port_with_http_and_port(self):
+        """Test host with http:// and port."""
+        host, port = normalize_host_port("http://localhost:8765", 9000)
+        self.assertEqual(host, "localhost")
+        self.assertEqual(port, 8765)
