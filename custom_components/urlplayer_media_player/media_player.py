@@ -96,9 +96,7 @@ class UrlPlayerMediaPlayer(CoordinatorEntity, MediaPlayerEntity):
     def media_artist(self) -> Optional[str]:
         """Return the artist of current playing media, or None if not available."""
         status = self._status
-        if status.get("song"):
-            return None
-        return status.get("station")
+        return status.get("station") if status.get("song") else None
 
     @property
     def source(self) -> Optional[str]:
@@ -194,6 +192,19 @@ class UrlPlayerMediaPlayer(CoordinatorEntity, MediaPlayerEntity):
         # Build a proper BrowseMedia tree based on content ID
         if media_content_id == "favourites":
             # Return favorites (if available)
+            children = []
+            for s in self._stations:
+                if s.get("favourite") and "title" in s and "url" in s:
+                    children.append(
+                        BrowseMedia(
+                            title=s["title"],
+                            media_class=MediaClass.CHANNEL,
+                            media_content_id=s["url"],
+                            media_content_type=MediaType.MUSIC,
+                            can_play=True,
+                            can_expand=False,
+                        )
+                    )
             return BrowseMedia(
                 title="Favourites",
                 media_class=MediaClass.DIRECTORY,
@@ -201,7 +212,7 @@ class UrlPlayerMediaPlayer(CoordinatorEntity, MediaPlayerEntity):
                 media_content_type="favorites",
                 can_play=False,
                 can_expand=True,
-                children=[],
+                children=children,
             )
         elif media_content_id == "stations":
             # Return all stations
@@ -229,6 +240,19 @@ class UrlPlayerMediaPlayer(CoordinatorEntity, MediaPlayerEntity):
             )
         elif media_content_id == "ai_music":
             # Return AI music (if available)
+            children = []
+            for t in self._tracks:
+                if "title" in t and "id" in t:
+                    children.append(
+                        BrowseMedia(
+                            title=t["title"],
+                            media_class=MediaClass.TRACK,
+                            media_content_id=t["id"],
+                            media_content_type=MediaType.MUSIC,
+                            can_play=True,
+                            can_expand=False,
+                        )
+                    )
             return BrowseMedia(
                 title="AI Music",
                 media_class=MediaClass.DIRECTORY,
@@ -236,7 +260,7 @@ class UrlPlayerMediaPlayer(CoordinatorEntity, MediaPlayerEntity):
                 media_content_type="ai_music",
                 can_play=False,
                 can_expand=True,
-                children=[],
+                children=children,
             )
         else:
             # Root level - show main categories

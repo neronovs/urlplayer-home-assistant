@@ -6,7 +6,7 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
-from .const import DOMAIN, CONF_HOST, CONF_PORT, CONF_TOKEN, DEFAULT_PORT, DEFAULT_SCAN_INTERVAL_SECONDS
+from .const import DOMAIN, CONF_HOST, CONF_PORT, CONF_TOKEN, DEFAULT_PORT, DEFAULT_SCAN_INTERVAL_SECONDS, PLATFORMS
 from .client import UrlPlayerClient
 
 _LOGGER = logging.getLogger(__name__)
