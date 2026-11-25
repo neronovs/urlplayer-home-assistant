@@ -2,18 +2,20 @@
 
 ## Installation
 
-### Option 1: HACS (Recommended)
+### Option 1: HACS 1-click badge + manual HACS instructions
 [![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=neronovs&repository=urlplayer-home-assistant&category=integration)
 
-Or manually add the repository:
-1. In Home Assistant, go to Settings → Devices & Services → Integrations
-2. Click the "+" button in the bottom right
-3. Search for "UrlPlayer" or add the custom repository URL: `https://github.com/neronovs/urlplayer-home-assistant`
+Or manually add the repository in HACS:
+1. In Home Assistant, open **HACS** → top-right menu (`⋮`) → **Custom repositories**
+2. Paste `https://github.com/neronovs/urlplayer-home-assistant` and choose category **Integration**
+3. Open **UrlPlayer** in HACS and click **Download**
+4. Restart Home Assistant
 
-### Option 2: One-liner Terminal Install
+### Option 2: One-liner Terminal Install with curl
 ```bash
 curl -fsSL https://raw.githubusercontent.com/neronovs/urlplayer-home-assistant/main/install.sh | sh
 ```
+Then restart Home Assistant.
 
 ## Setup Guide
 
@@ -23,10 +25,12 @@ curl -fsSL https://raw.githubusercontent.com/neronovs/urlplayer-home-assistant/m
 - Copy the URL and token displayed
 
 ### 2. Add the Integration
-The integration can be added automatically via Zeroconf discovery (`_urlplayer._tcp`) or manually by providing:
-- Host/IP address
-- Port number
-- Bearer token
+
+#### Automatic discovery (Zeroconf _urlplayer._tcp)
+In Settings → Devices & services, click Add on the discovered UrlPlayer card and paste your Bearer token.
+
+#### Manual setup
+Click Add integration → search for UrlPlayer → paste your URL (or Host IP) and Bearer token (port 8765 is pre-filled and auto-extracted if you paste the full http://host:port URL).
 
 ## Features Supported
 
@@ -41,8 +45,10 @@ The integration can be added automatically via Zeroconf discovery (`_urlplayer._
 
 ```yaml
 type: media-control
-entity: media_player.urlplayer
+entity: media_player.urlplayer_192_168_2_175
 ```
+
+> Note: Home Assistant names the entity after your phone's IP (e.g. `media_player.urlplayer_192_168_2_175`, or `media_player.urlplayer` if renamed during setup).
 
 ## Automation Examples
 
@@ -56,7 +62,7 @@ automation:
     action:
       - service: media_player.select_source
         target:
-          entity_id: media_player.urlplayer
+          entity_id: media_player.urlplayer_192_168_2_175
         data:
           source: "{{ trigger.to_state.state }}"
 ```
@@ -71,7 +77,7 @@ automation:
     action:
       - service: media_player.play_media
         target:
-          entity_id: media_player.urlplayer
+          entity_id: media_player.urlplayer_192_168_2_175
         data:
           media_content_id: "https://example.com/stream.mp3"
           media_content_type: "music"
@@ -84,7 +90,7 @@ automation:
     action:
       - service: media_player.play_media
         target:
-          entity_id: media_player.urlplayer
+          entity_id: media_player.urlplayer_192_168_2_175
         data:
           media_content_id: "drive:12345"
           media_content_type: "music"
@@ -97,14 +103,13 @@ automation:
     action:
       - service: media_player.volume_set
         target:
-          entity_id: media_player.urlplayer
+          entity_id: media_player.urlplayer_192_168_2_175
         data:
           volume_level: 0.65
 ```
 
 ## Security Notes
 
-- This integration is designed for LAN-only use
-- Authentication uses Bearer token (HTTP header)
-- Station and track allow-lists are supported (opt-in)
-- All communication is encrypted over HTTPS when enabled
+- Traffic stays strictly on your local Wi-Fi network (LAN-only HTTP)
+- Every endpoint (except /api/v1/health) requires constant-time Bearer token authentication
+- Playback is restricted to stations and cached AI Music tracks already in your UrlPlayer library (arbitrary LAN URLs are rejected)

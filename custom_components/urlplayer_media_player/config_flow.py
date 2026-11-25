@@ -88,14 +88,9 @@ class UrlPlayerConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             CONF_HOST: host,
             CONF_PORT: port,
         }
+        self.context['title_placeholders'] = {'host': host}
 
-        return self.async_show_form(
-            step_id="zeroconf_confirm",
-            description_placeholders={
-                "host": host,
-                "port": port,
-            },
-        )
+        return await self.async_step_zeroconf_confirm()
 
     async def async_step_zeroconf_confirm(
         self, user_input: Dict[str, Any] | None = None
@@ -104,11 +99,12 @@ class UrlPlayerConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         errors: Dict[str, str] = {}
         if user_input is not None:
             try:
+                token = user_input[CONF_TOKEN].strip()
                 info = await validate_input(
                     self.hass,
                     self._discovery_info[CONF_HOST],
                     self._discovery_info[CONF_PORT],
-                    user_input[CONF_TOKEN],
+                    token,
                 )
             except UrlPlayerAuthError:
                 errors["base"] = "invalid_auth"
@@ -123,7 +119,7 @@ class UrlPlayerConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     data={
                         CONF_HOST: self._discovery_info[CONF_HOST],
                         CONF_PORT: self._discovery_info[CONF_PORT],
-                        CONF_TOKEN: user_input[CONF_TOKEN],
+                        CONF_TOKEN: token,
                     },
                 )
 
@@ -135,4 +131,8 @@ class UrlPlayerConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 }
             ),
             errors=errors,
+            description_placeholders={
+                "host": str(self._discovery_info[CONF_HOST]),
+                "port": str(self._discovery_info[CONF_PORT]),
+            },
         )
