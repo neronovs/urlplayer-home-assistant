@@ -8,7 +8,7 @@
 - Copy the URL and token displayed
 
 ### 2. Install the Custom Component
-- **Option 1 (HACS)**: Open the repository in HACS ([1-click HACS link](https://my.home-assistant.io/redirect/hacs_repository/?owner=neronovs&repository=urlplayer-home-assistant&category=integration), or add `https://github.com/neronovs/urlplayer-home-assistant` as a Custom repository with category **Integration**), click **Download**, and restart Home Assistant.
+- **Option 1 (HACS / Marketplace)**: Open the repository via the [1-click HACS link](https://my.home-assistant.io/redirect/hacs_repository/?owner=neronovs&repository=urlplayer-home-assistant&category=integration) (or add `https://github.com/neronovs/urlplayer-home-assistant` as a Custom repository with category **Integration**), click **Install** (or **Download**), and restart Home Assistant if prompted.
 - **Option 2 (Terminal one-liner)**: Run `curl -fsSL https://raw.githubusercontent.com/neronovs/urlplayer-home-assistant/main/install.sh | sh` in your Home Assistant Terminal, then restart Home Assistant.
 - **Option 3 (Manual copy)**: Copy `custom_components/urlplayer_media_player` to `/config/custom_components/urlplayer_media_player` and restart Home Assistant.
 

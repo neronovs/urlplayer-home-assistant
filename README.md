@@ -5,11 +5,11 @@
 ### Option 1: HACS 1-click badge + manual HACS instructions
 [![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=neronovs&repository=urlplayer-home-assistant&category=integration)
 
-Or manually add the repository in HACS:
-1. In Home Assistant, open **HACS** → top-right menu (`⋮`) → **Custom repositories**
+Or manually add the repository in HACS / Marketplace:
+1. In Home Assistant, open **HACS** (or **Marketplace**) → top-right menu (`⋮`) → **Custom repositories** (or **Add from link**)
 2. Paste `https://github.com/neronovs/urlplayer-home-assistant` and choose category **Integration**
-3. Open **UrlPlayer** in HACS and click **Download**
-4. Restart Home Assistant
+3. Open **UrlPlayer** and click **Install** (or **Download**)
+4. Restart Home Assistant if prompted
 
 ### Option 2: One-liner Terminal Install with curl
 ```bash
